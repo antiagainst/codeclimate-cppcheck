@@ -25,7 +25,7 @@ def get_config():
 
         config = config.get('config', {})
         arguments.append('--enable={}'.format(config.get('check', 'all')))
-
+        arguments.extend(['--std={}'.format(s) for s in config.get('stds', [])])
         if config.get('inconclusive', 'true') == 'true':
             arguments.append('-inconclusive')
 
