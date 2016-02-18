@@ -31,6 +31,22 @@ in `.codeclimate.yml`:
 
 Additional options may be supported later.
 
+An example `.codeclimate.yml` file:
+
+```yaml
+engines:
+  cppcheck:
+    enabled: true
+    exclude_paths:
+      - third_party
+    config:
+      check: all
+      inconclusive: false
+      stds:
+        - c++11
+        - posix
+```
+
 ## Need help?
 
 For help with [Cppcheck][cppcheck], check out their documentation.
