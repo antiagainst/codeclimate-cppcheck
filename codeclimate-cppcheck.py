@@ -16,7 +16,7 @@ SRC_SUFFIX = ['.h', '.hpp', '.c', '.cpp', '.cc']
 
 
 def get_src_files(paths):
-    """Globs and returns all C/C++ header/source files in the given paths"""
+    """Globs and returns all C/C++ header/source files in the given paths."""
     files = []
     cwd = os.getcwd()
     for path in paths:
@@ -93,7 +93,7 @@ def convert_location(location):
     return location
 
 
-def derive_category_severity(severity):
+def derive_category_and_severity(severity):
     """Derives codeclimate issue category & severity from cppcheck severity."""
     # http://cppcheck.sourceforge.net/devinfo/doxyoutput/classSeverity.html
     # https://github.com/codeclimate/spec/blob/master/SPEC.md
@@ -108,26 +108,34 @@ def derive_category_severity(severity):
     if severity == 'portability':
         return ('Compatibility', 'normal')
     if severity == 'none' or severity == 'information' or severity == 'debug':
-        # TODO: Figure out the correct corresponding codeclimate category.
         return ('Clarity', 'info')
 
 
 def cppcheck_error_to_codeclimate_issue(error):
     """Converts a cppcheck error into a codeclimate issue."""
+    if len(error) == 0:
+        # No location for this issue: likely to be a general information issue,
+        # should be safe to ignore.
+        return None
+
     issue = {}
     issue['type'] = 'issue'
     issue['check_name'] = 'cppcheck'
-    issue['description'] = error.get('msg')
+    # Combine 'id' and 'msg' to form the 'description'.
+    issue['description'] = '{}: {}'.format(error.get('id'), error.get('msg'))
+
     issue['content'] = {}
     issue['content']['body'] = error.get('verbose')
-    issue['categories'], issue['severity'] = \
-        derive_category_severity(error.get('severity'))
-    issue['categories'] = [issue['categories']]
+    if error.get('cwe'):
+        # Include CWE link for detailed information.
+        issue['content']['body'] += (
+            ' [CWE link](https://cwe.mitre.org/data/definitions/'
+            '{}.html)'.format(error.get('cwe')))
 
-    if len(error) == 0:
-        # No location for this issue:
-        # likely to be a general information issue, should be safe to ignore.
-        return None
+    category, issue['severity'] = (
+        derive_category_and_severity(error.get('severity')))
+    issue['categories'] = [category]
+
     issue['location'] = convert_location(error[0])
     if len(error) > 1:
         locations = list(error)[1:]
