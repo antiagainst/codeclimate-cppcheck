@@ -1,15 +1,34 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Runs cppcheck, collects and reports results."""
 
+import glob
 import json
 import os.path
 import subprocess
 import sys
+import tempfile
 
 from lxml import etree
 
 CONFIG_FILE_PATH = '/config.json'
+SRC_SUFFIX = ['.h', '.hpp', '.c', '.cpp', '.cc']
+
+
+def get_src_files(paths):
+    """Globs and returns all C/C++ header/source files in the given paths"""
+    files = []
+    cwd = os.getcwd()
+    for path in paths:
+        os.chdir(path)
+        print('[cppcheck] files in directory {}:'.format(path), file=sys.stderr)
+        for suffix in SRC_SUFFIX:
+            srcs = glob.glob('**/*{}'.format(suffix), recursive=True)
+            for f in srcs:
+                print('[cppcheck]   {}'.format(f), file=sys.stderr)
+            files.extend(srcs)
+        os.chdir(cwd)
+    return files
 
 
 def get_config():
@@ -20,8 +39,14 @@ def get_config():
         contents = open(CONFIG_FILE_PATH).read()
         config = json.loads(contents)
 
-        exclude_paths = config.get('exclude_paths', [])
-        arguments.extend(['-i{}'.format(p) for p in exclude_paths])
+        include_paths = config.get('include_paths', [])
+        files = get_src_files(include_paths)
+        _, filelistpath = tempfile.mkstemp()
+        with open(filelistpath, 'w') as filelist:
+            for f in files:
+                filelist.write('{}\n'.format(f))
+        print('[cppcheck] source file list: {}'.format(filelistpath),
+              file=sys.stderr)
 
         config = config.get('config', {})
         arguments.append('--enable={}'.format(config.get('check', 'all')))
@@ -29,15 +54,17 @@ def get_config():
         if config.get('inconclusive', 'true') == 'true':
             arguments.append('-inconclusive')
 
-    return arguments
+    return arguments, filelistpath
 
 
 def get_cppcheck_command():
+    args, filelist = get_config()
     command = ['cppcheck']
-    command.extend(get_config())
+    command.extend(args)
     command.extend(['--xml', '--xml-version=2'])
-    command.append('.')
+    command.append('--file-list={}'.format(filelist))
 
+    print('[cppcheck] command: {}'.format(command), file=sys.stderr)
     return command
 
 
@@ -60,8 +87,8 @@ def convert_location(location):
     location = {}
     location['path'] = path
     location['lines'] = {}
-    location['lines']['begin'] = line
-    location['lines']['end'] = line
+    location['lines']['begin'] = int(line)
+    location['lines']['end'] = int(line)
 
     return location
 
@@ -91,7 +118,8 @@ def cppcheck_error_to_codeclimate_issue(error):
     issue['type'] = 'issue'
     issue['check_name'] = 'cppcheck'
     issue['description'] = error.get('msg')
-    issue['content'] = error.get('verbose')
+    issue['content'] = {}
+    issue['content']['body'] = error.get('verbose')
     issue['categories'], issue['severity'] = \
         derive_category_severity(error.get('severity'))
     issue['categories'] = [issue['categories']]
@@ -117,7 +145,7 @@ def parse_cppcheck_results(results):
                 issue = cppcheck_error_to_codeclimate_issue(error)
                 if issue:
                     # codeclimate requires the string to be null-terminated.
-                    print '{}\0'.format(json.dumps(issue))
+                    print('{}\0'.format(json.dumps(issue)))
 
 if __name__ == '__main__':
     parse_cppcheck_results(run_cppcheck())
