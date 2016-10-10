@@ -12,7 +12,7 @@ import tempfile
 from lxml import etree
 
 CONFIG_FILE_PATH = '/config.json'
-SRC_SUFFIX = ['.h', '.hpp', '.c', '.cpp', '.cc', '.cxx']
+SRC_SUFFIX = ['.c', '.cpp', '.cc', '.cxx']
 
 
 def get_src_files(paths):
@@ -31,7 +31,7 @@ def get_src_files(paths):
     return files
 
 
-def get_config():
+def get_config_and_filelist():
     """Returns command line arguments by parsing codeclimate config file."""
     arguments = []
 
@@ -50,7 +50,21 @@ def get_config():
 
         config = config.get('config', {})
         arguments.append('--enable={}'.format(config.get('check', 'all')))
+        if config.get('project'):
+            arguments.append('--project={}'.format(config.get('project')))
+        if config.get('language'):
+            arguments.extend(['-x', config.get('language')])
         arguments.extend(['--std={}'.format(s) for s in config.get('stds', [])])
+        if config.get('platform'):
+            arguments.append('--platform={}'.format(config.get('platform')))
+        arguments.extend(['-D{}'.format(d) for d in config.get('defines', [])])
+        arguments.extend(['-U{}'.format(u)
+                          for u in config.get('undefines', [])])
+        arguments.extend(['-I{}'.format(i)
+                          for i in config.get('includes', [])])
+        if config.get('max_configs'):
+            arguments.append('--max-configs={}'.format(
+                config.get('max_configs')))
         if config.get('inconclusive', 'true') == 'true':
             arguments.append('-inconclusive')
 
@@ -58,7 +72,7 @@ def get_config():
 
 
 def get_cppcheck_command():
-    args, filelist = get_config()
+    args, filelist = get_config_and_filelist()
     command = ['cppcheck']
     command.extend(args)
     command.extend(['--xml', '--xml-version=2'])

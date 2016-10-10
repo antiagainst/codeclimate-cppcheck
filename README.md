@@ -20,14 +20,34 @@ Like the `cppcheck` command line tool itself, you can configure various
 aspects of the static analysis. Right now, the following options are supported
 in `.codeclimate.yml`:
 
-* `check`: issue categories to check. Refer to the `--enable=` option of
-  `cppcheck` for available arguments.
-* `exclude_paths`: multiple paths to exclude from checking. Refer to the
-  `-i` option of `cppcheck`.
-* `inconclusive`: allow reporting issues that are not inconclusive. Refer to
-  the `-inconclusive` option of `cppcheck`.
-* `stds`: multiple language standards to check against. Refer to the`--std=`
-  option of `cppcheck` for available arguments.
+* `check`: issue categories to check. Available values are: `all`, `warning`,
+  `style`, `performance`, `portability`, `information`, `unusedFunction`, etc.
+  Refer to the `--enable=` option of `cppcheck` for more information.
+* `project`: use Visual Studio project/solution (`*.vcxproj`/`*sln`) or compile
+  database (`compile_commands.json`) for files to analyse, include paths,
+  defines, platform and undefines.
+  Refer to the `--project=` option of `cppcheck` for more information.
+* `language`: forces `cppcheck` to check all files as the given language.
+  Valid values are: `c`, `c++`.
+  Refer to the `--language=` option of `cppcheck` for more information.
+* `stds`: multiple language standards to check against.
+  Refer to the `--std=` option of `cppcheck` for more information.
+* `platform`: specifies platform specific types and sizes. Available builtin
+  platforms are: `unix32`, `unix64`, `win32A`, `win32W`, `win64`, etc.
+  Refer to the `--platform=` option of `cppcheck` for more information.
+* `defines`: define preprocessor symbols.
+  Refer to the `-D` option of `cppcheck` for more information.
+* `undefines`: undefine preprocessor symbols.
+  Refer to the `-U` option of `cppcheck` for more information.
+* `includes`: paths for searching include files. First given path is searched
+  for contained header files first. If paths are relative to source files,
+  this is not needed.
+  Refer to the `-I` option of `cppcheck` for more information.
+* `max_configs`: maximum number of configurations to check in a file before
+  skipping it. Default is '12'.
+  Refer to the `--max-configs=` option of `cppcheck` for more information.
+* `inconclusive`: allow reporting issues that are not inconclusive.
+  Refer to the `--inconclusive` option of `cppcheck` for more information.
 
 Additional options may be supported later.
 
@@ -37,14 +57,22 @@ An example `.codeclimate.yml` file:
 engines:
   cppcheck:
     enabled: true
-    exclude_paths:
-      - third_party
     config:
       check: all
-      inconclusive: false
+      project: compile_commands.json
+      language: c++
       stds:
         - c++11
-        - posix
+      platform: unix64
+      defines:
+      - "DEBUG=1"
+      - "__cplusplus"
+      undefines:
+      - "DEBUG"
+      includes:
+      - include/
+      max_configs: 42
+      inconclusive: false
 ```
 
 ## Need help?
