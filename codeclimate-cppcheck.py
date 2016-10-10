@@ -12,7 +12,7 @@ import tempfile
 from lxml import etree
 
 CONFIG_FILE_PATH = '/config.json'
-SRC_SUFFIX = ['.h', '.hpp', '.c', '.cpp', '.cc']
+SRC_SUFFIX = ['.h', '.hpp', '.c', '.cpp', '.cc', '.cxx']
 
 
 def get_src_files(paths):
