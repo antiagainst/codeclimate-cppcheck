@@ -1,0 +1,11 @@
+{
+  "name": "codeclimate-cppcheck",
+  "description": "Cppcheck is a static analysis tool for C/C++ code.",
+  "maintainer": {
+    "name": "Lei Zhang",
+    "email": "antiagainst@gmail.com"
+  },
+  "languages" : ["C", "C++"],
+  "version": "0.0.1",
+  "spec_version": "0.2.0"
+}
