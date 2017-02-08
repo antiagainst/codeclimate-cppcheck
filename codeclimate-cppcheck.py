@@ -38,6 +38,7 @@ def get_config_and_filelist():
     if os.path.exists(CONFIG_FILE_PATH):
         contents = open(CONFIG_FILE_PATH).read()
         config = json.loads(contents)
+        print('[cppcheck] config: {}', config, file=sys.stderr)
 
         include_paths = config.get('include_paths', [])
         files = get_src_files(include_paths)
@@ -134,17 +135,16 @@ def cppcheck_error_to_codeclimate_issue(error):
 
     issue = {}
     issue['type'] = 'issue'
-    issue['check_name'] = 'cppcheck'
-    # Combine 'id' and 'msg' to form the 'description'.
-    issue['description'] = '{}: {}'.format(error.get('id'), error.get('msg'))
+    issue['check_name'] = error.get('id')
+    issue['description'] = error.get('msg').replace("'", "`")
 
     issue['content'] = {}
-    issue['content']['body'] = error.get('verbose')
+    issue['content']['body'] = error.get('verbose').replace("'", "`");
     if error.get('cwe'):
         # Include CWE link for detailed information.
         issue['content']['body'] += (
-            ' [CWE link](https://cwe.mitre.org/data/definitions/'
-            '{}.html)'.format(error.get('cwe')))
+            ' ([detailed CWE explanation](https://cwe.mitre.org/data/'
+            'definitions/{}.html))'.format(error.get('cwe')))
 
     category, issue['severity'] = (
         derive_category_and_severity(error.get('severity')))
