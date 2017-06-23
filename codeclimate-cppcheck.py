@@ -20,14 +20,21 @@ def get_src_files(paths):
     files = []
     cwd = os.getcwd()
     for path in paths:
-        os.chdir(path)
-        print('[cppcheck] files in directory {}:'.format(path), file=sys.stderr)
-        for suffix in SRC_SUFFIX:
-            srcs = glob.glob('**/*{}'.format(suffix), recursive=True)
-            for f in srcs:
-                print('[cppcheck]   {}'.format(f), file=sys.stderr)
-            files.extend(srcs)
-        os.chdir(cwd)
+        if os.path.isdir(path):
+            os.chdir(path)
+            print('[cppcheck] files in directory {}:'.format(path),
+                  file=sys.stderr)
+            for suffix in SRC_SUFFIX:
+                srcs = glob.glob('**/*{}'.format(suffix), recursive=True)
+                for f in srcs:
+                    print('[cppcheck]   {}'.format(f), file=sys.stderr)
+                files.extend(srcs)
+            os.chdir(cwd)
+        else:
+            for suffix in SRC_SUFFIX:
+                if path.endswith(suffix):
+                    files.append(path)
+                    break
     return files
 
 
