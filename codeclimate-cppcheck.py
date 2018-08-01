@@ -17,6 +17,7 @@ SRC_SUFFIX = ['.c', '.cpp', '.cc', '.cxx']
 
 def get_src_files(paths):
     """Globs and returns all C/C++ header/source files in the given paths."""
+
     files = []
     cwd = os.getcwd()
     for path in paths:
@@ -35,8 +36,18 @@ def get_src_files(paths):
                 if path.endswith(suffix):
                     files.append(path)
                     break
+
     return files
 
+def countfiles():
+    if os.path.exists(CONFIG_FILE_PATH):
+        contents = open(CONFIG_FILE_PATH).read()
+        config = json.loads(contents)
+        include_paths = config.get('include_paths', [])
+        files = get_src_files(include_paths)
+        return len(files)
+
+    return 0
 
 def get_config_and_filelist():
     """Returns command line arguments by parsing codeclimate config file."""
@@ -75,7 +86,6 @@ def get_config_and_filelist():
                 config.get('max_configs')))
         if config.get('inconclusive', 'true') == 'true':
             arguments.append('-inconclusive')
-
     return arguments, filelistpath
 
 
@@ -87,18 +97,26 @@ def get_cppcheck_command():
     command.append('--file-list={}'.format(filelist))
 
     print('[cppcheck] command: {}'.format(command), file=sys.stderr)
+
     return command
 
 
 def run_cppcheck():
-    p = subprocess.Popen(get_cppcheck_command(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-    _, stderr = p.communicate()
-    if p.returncode != 0:
-        sys.exit(p.returncode)
 
-    return stderr
+    # cppcheck errors out on empty directories
+    if countfiles() > 0:
+        p = subprocess.Popen(get_cppcheck_command(),
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+
+        _, stderr = p.communicate()
+
+        if p.returncode != 0:
+            sys.exit(p.returncode)
+
+        return stderr
+
+    return None
 
 
 def convert_location(location):
@@ -158,23 +176,27 @@ def cppcheck_error_to_codeclimate_issue(error):
     issue['categories'] = [category]
 
     issue['location'] = convert_location(error[0])
+    issue['other_locations'] = []
     if len(error) > 1:
         locations = list(error)[1:]
-        locations = [convert_location(l) for l in locations]
-        issue['other_locations'] = locations
+        for l in locations:
+            if l.get('line') is not None:
+                location = convert_location(l)
+                issue['other_locations'].append(location)
 
     return issue
 
 
 def parse_cppcheck_results(results):
-    root = etree.fromstring(results)
-    for node in root:
-        if node.tag == 'errors':
-            for error in node:
-                issue = cppcheck_error_to_codeclimate_issue(error)
-                if issue:
-                    # codeclimate requires the string to be null-terminated.
-                    print('{}\0'.format(json.dumps(issue)))
+    if results is not None:
+        root = etree.fromstring(results)
+        for node in root:
+            if node.tag == 'errors':
+                for error in node:
+                    issue = cppcheck_error_to_codeclimate_issue(error)
+                    if issue:
+                        # codeclimate requires the string to be null-terminated.
+                        print('{}\0'.format(json.dumps(issue)))
 
 if __name__ == '__main__':
     parse_cppcheck_results(run_cppcheck())
