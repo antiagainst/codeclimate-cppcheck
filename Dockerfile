@@ -13,4 +13,4 @@ COPY . /usr/src/app
 VOLUME /code
 WORKDIR /code
 
-CMD ["python3", "/usr/src/app/codeclimate-cppcheck.py"]
+CMD ["/usr/src/app/bin/codeclimate-cppcheck"]
