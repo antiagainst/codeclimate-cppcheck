@@ -8,46 +8,25 @@ import os.path
 import subprocess
 import sys
 import tempfile
-
 from lxml import etree
 
+from workspace import Workspace
+
 CONFIG_FILE_PATH = '/config.json'
-SRC_SUFFIX = ['.c', '.cpp', '.cc', '.cxx']
 
 
-def get_src_files(paths):
-    """Globs and returns all C/C++ header/source files in the given paths."""
-
-    files = []
-    cwd = os.getcwd()
-    for path in paths:
-        if os.path.isdir(path):
-            os.chdir(path)
-            print('[cppcheck] files in directory {}:'.format(path),
-                  file=sys.stderr)
-            for suffix in SRC_SUFFIX:
-                srcs = glob.glob('**/*{}'.format(suffix), recursive=True)
-                for f in srcs:
-                    print('[cppcheck]   {}'.format(f), file=sys.stderr)
-                files.extend(srcs)
-            os.chdir(cwd)
-        else:
-            for suffix in SRC_SUFFIX:
-                if path.endswith(suffix):
-                    files.append(path)
-                    break
-
-    return files
-
-def countfiles():
+def workspace_files():
     if os.path.exists(CONFIG_FILE_PATH):
-        contents = open(CONFIG_FILE_PATH).read()
-        config = json.loads(contents)
-        include_paths = config.get('include_paths', [])
-        files = get_src_files(include_paths)
-        return len(files)
+        body = open(CONFIG_FILE_PATH).read()
+        include_paths = json.loads(body).get('include_paths', [])
 
-    return 0
+        workspace = Workspace(include_paths).calculate()
+
+        print('[cppcheck] analyzing {} files', len(workspace), file=sys.stderr)
+        return workspace
+    else:
+        return []
+
 
 def get_config_and_filelist():
     """Returns command line arguments by parsing codeclimate config file."""
@@ -59,10 +38,9 @@ def get_config_and_filelist():
         print('[cppcheck] config: {}', config, file=sys.stderr)
 
         include_paths = config.get('include_paths', [])
-        files = get_src_files(include_paths)
         _, filelistpath = tempfile.mkstemp()
         with open(filelistpath, 'w') as filelist:
-            for f in files:
+            for f in workspace_files():
                 filelist.write('{}\n'.format(f))
         print('[cppcheck] source file list: {}'.format(filelistpath),
               file=sys.stderr)
@@ -104,7 +82,7 @@ def get_cppcheck_command():
 def run_cppcheck():
 
     # cppcheck errors out on empty directories
-    if countfiles() > 0:
+    if len(workspace_files()) > 0:
         p = subprocess.Popen(get_cppcheck_command(),
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
