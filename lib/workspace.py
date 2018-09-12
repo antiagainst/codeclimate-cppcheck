@@ -14,10 +14,14 @@ class Workspace:
         for path in self.include_paths:
             if os.path.isdir(path):
                 paths.extend(self._walk(path))
-            elif self._should_include(path):
+            elif self.should_include(path):
                 paths.append(path)
 
         return paths
+
+
+    def should_include(self, name):
+        return name.lower().endswith(tuple(SRC_SUFFIX))
 
 
     def _walk(self, path):
@@ -25,12 +29,8 @@ class Workspace:
 
         for root, _directories, files in os.walk(path):
             for name in files:
-                if self._should_include(name):
+                if self.should_include(name):
                     path = os.path.join(root, name)
                     paths.append(path)
 
         return paths
-
-
-    def _should_include(self, name):
-        return name.lower().endswith(tuple(SRC_SUFFIX))
