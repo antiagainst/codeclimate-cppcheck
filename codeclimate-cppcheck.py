@@ -12,60 +12,16 @@ import tempfile
 from lxml import etree
 
 CONFIG_FILE_PATH = '/config.json'
-SRC_SUFFIX = ['.c', '.cpp', '.cc', '.cxx']
 
-
-def get_src_files(paths):
-    """Globs and returns all C/C++ header/source files in the given paths."""
-
-    files = []
-    cwd = os.getcwd()
-    for path in paths:
-        if os.path.isdir(path):
-            os.chdir(path)
-            print('[cppcheck] files in directory {}:'.format(path),
-                  file=sys.stderr)
-            for suffix in SRC_SUFFIX:
-                srcs = glob.glob('**/*{}'.format(suffix), recursive=True)
-                for f in srcs:
-                    print('[cppcheck]   {}'.format(f), file=sys.stderr)
-                files.extend(srcs)
-            os.chdir(cwd)
-        else:
-            for suffix in SRC_SUFFIX:
-                if path.endswith(suffix):
-                    files.append(path)
-                    break
-
-    return files
-
-def countfiles():
-    if os.path.exists(CONFIG_FILE_PATH):
-        contents = open(CONFIG_FILE_PATH).read()
-        config = json.loads(contents)
-        include_paths = config.get('include_paths', [])
-        files = get_src_files(include_paths)
-        return len(files)
-
-    return 0
-
-def get_config_and_filelist():
+def get_config_and_paths():
     """Returns command line arguments by parsing codeclimate config file."""
     arguments = []
 
     if os.path.exists(CONFIG_FILE_PATH):
         contents = open(CONFIG_FILE_PATH).read()
         config = json.loads(contents)
-        print('[cppcheck] config: {}', config, file=sys.stderr)
-
         include_paths = config.get('include_paths', [])
-        files = get_src_files(include_paths)
-        _, filelistpath = tempfile.mkstemp()
-        with open(filelistpath, 'w') as filelist:
-            for f in files:
-                filelist.write('{}\n'.format(f))
-        print('[cppcheck] source file list: {}'.format(filelistpath),
-              file=sys.stderr)
+        print('[cppcheck] config: {}', config, file=sys.stderr)
 
         config = config.get('config', {})
         arguments.append('--enable={}'.format(config.get('check', 'all')))
@@ -85,16 +41,19 @@ def get_config_and_filelist():
             arguments.append('--max-configs={}'.format(
                 config.get('max_configs')))
         if config.get('inconclusive', 'true') == 'true':
-            arguments.append('-inconclusive')
-    return arguments, filelistpath
+            arguments.append('--inconclusive')
+
+    return arguments, include_paths
 
 
 def get_cppcheck_command():
-    args, filelist = get_config_and_filelist()
+    args, paths = get_config_and_paths()
     command = ['cppcheck']
     command.extend(args)
     command.extend(['--xml', '--xml-version=2'])
-    command.append('--file-list={}'.format(filelist))
+
+    for path in paths:
+        command.append(path)
 
     print('[cppcheck] command: {}'.format(command), file=sys.stderr)
 
@@ -104,19 +63,16 @@ def get_cppcheck_command():
 def run_cppcheck():
 
     # cppcheck errors out on empty directories
-    if countfiles() > 0:
-        p = subprocess.Popen(get_cppcheck_command(),
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+    p = subprocess.Popen(get_cppcheck_command(),
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
 
-        _, stderr = p.communicate()
+    _, stderr = p.communicate()
 
-        if p.returncode != 0:
-            sys.exit(p.returncode)
+    if p.returncode != 0:
+        sys.exit(p.returncode)
 
-        return stderr
-
-    return None
+    return stderr
 
 
 def convert_location(location):
