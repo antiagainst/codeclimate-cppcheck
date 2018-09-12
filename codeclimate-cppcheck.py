@@ -85,7 +85,7 @@ def get_config_and_filelist():
             arguments.append('--max-configs={}'.format(
                 config.get('max_configs')))
         if config.get('inconclusive', 'true') == 'true':
-            arguments.append('-inconclusive')
+            arguments.append('--inconclusive')
     return arguments, filelistpath
 
 
