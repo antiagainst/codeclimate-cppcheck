@@ -56,7 +56,7 @@ class IssueFormatter:
         # http://cppcheck.sourceforge.net/devinfo/doxyoutput/classSeverity.html
         # https://github.com/codeclimate/spec/blob/master/SPEC.md
         if severity == 'error':
-            return ('Security', 'critical')
+            return ('Performance', 'critical')
         if severity == 'warning':
             return ('Bug Risk', 'normal')
         if severity == 'style':
