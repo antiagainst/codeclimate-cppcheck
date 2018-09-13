@@ -1,14 +1,21 @@
-FROM alpine:3.5
-MAINTAINER Lei Zhang <antiagainst@gmail.com>
+FROM alpine:3.8
+LABEL maintainer "Lei Zhang <antiagainst@gmail.com>"
 
-ADD repositories /etc/apk/repositories
+WORKDIR /usr/src/app
+COPY docker/files /
 
-RUN apk --update add --no-cache --upgrade cppcheck@community python3 py3-lxml@main
+RUN apk --update add --no-cache --upgrade \
+      cppcheck@community \
+      python3 \
+      py3-lxml@main && \
+    rm -rf /usr/share/ri && \
+    adduser -u 9000 -D -s /bin/false app
 
-RUN adduser -u 9000 -D -s /bin/false app
+COPY engine.json /
+COPY . ./
+RUN chown -R app:app ./
+
 USER app
-
-COPY . /usr/src/app
 
 VOLUME /code
 WORKDIR /code

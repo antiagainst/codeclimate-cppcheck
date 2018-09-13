@@ -1,4 +1,4 @@
-http://dl-4.alpinelinux.org/alpine/v3.5/main
-http://dl-4.alpinelinux.org/alpine/v3.5/community
+http://dl-4.alpinelinux.org/alpine/v3.8/main
+http://dl-4.alpinelinux.org/alpine/v3.8/community
 @main    http://dl-4.alpinelinux.org/alpine/edge/main
 @community http://dl-4.alpinelinux.org/alpine/edge/community
