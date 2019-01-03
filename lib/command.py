@@ -13,7 +13,7 @@ class Command:
             command.append('--project={}'.format(self.config.get('project')))
 
         if self.config.get('language'):
-            command.append('--language', self.config.get('language'))
+            command.append('--language={}'.format(self.config.get('language')))
 
         for identifier in self.config.get('stds', []):
             command.append('--std={}'.format(identifier))
