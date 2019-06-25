@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.10
 LABEL maintainer "Lei Zhang <antiagainst@gmail.com>"
 
 WORKDIR /usr/src/app
