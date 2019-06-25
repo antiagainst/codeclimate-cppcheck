@@ -30,7 +30,7 @@ class Command:
         for directory in self.config.get('includes', []):
             command.append('-I{}'.format(directory))
 
-        if self.config.get('max_self.configs'):
+        if self.config.get('max_configs'):
             command.append('--max-configs={}'.format(self.config.get('max_configs')))
 
         if self.config.get('inconclusive', 'true') == 'true':
