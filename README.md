@@ -44,8 +44,10 @@ in `.codeclimate.yml`:
   this is not needed.
   Refer to the `-I` option of `cppcheck` for more information.
 * `max_configs`: maximum number of configurations to check in a file before
-  skipping it. Default is '12'.
-  Refer to the `--max-configs=` option of `cppcheck` for more information.
+  skipping it. Default is 12. `max_configs` can also be set to `force`, which
+  forces `cppcheck` to check all configs.
+  Refer to the `--max-configs=` and `--force` options of `cppcheck` for more
+  information.
 * `inconclusive`: allow reporting issues that are not inconclusive.
   Refer to the `--inconclusive` option of `cppcheck` for more information.
 
