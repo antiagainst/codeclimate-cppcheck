@@ -31,7 +31,10 @@ class Command:
             command.append('-I{}'.format(directory))
 
         if self.config.get('max_configs'):
-            command.append('--max-configs={}'.format(self.config.get('max_configs')))
+            if self.config.get('max_configs') == 'force':
+                command.append('--force')
+            else:
+                command.append('--max-configs={}'.format(self.config.get('max_configs')))
 
         if self.config.get('inconclusive', 'true') == 'true':
             command.append('--inconclusive')
