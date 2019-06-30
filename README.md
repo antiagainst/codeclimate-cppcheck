@@ -9,10 +9,13 @@ hosted analysis platform.
 ## Installation
 
 1. If you haven't already, [install the Code Climate CLI][codeclimate-cli].
-2. Run `codeclimate engines:enable cppcheck`. This command both installs the
-   engine and enables it in your `.codeclimate.yml` file.
-3. You're ready to analyze! Browse into your project's folder and run
-   `codeclimate analyze`.
+2. [optional] Run `codeclimate engines:install cppcheck` to install the Code
+   Climate Cppcheck engine.
+3. Configure your `.codeclimate.yml` file. See example below.
+4. You're ready to analyze! Browse into your project's folder and run
+   `codeclimate analyze`. If you skipped step 2, the Cppcheck engine will
+   automatically be installed at this point, assuming it's enabled in
+   `.codeclimate.yml`.
 
 ## Configuration
 
@@ -54,7 +57,8 @@ Additional options may be supported later.
 An example `.codeclimate.yml` file:
 
 ```yaml
-engines:
+version: 2
+plugins:
   cppcheck:
     enabled: true
     config:
