@@ -53,6 +53,8 @@ in `.codeclimate.yml`:
   information.
 * `inconclusive`: allow reporting issues that are not inconclusive.
   Refer to the `--inconclusive` option of `cppcheck` for more information.
+* `suppressions-list`: suppress warnings listed in the file..
+  Refer to the `--suppressions-list` option of `cppcheck` for more information.
 
 Additional options may be supported later.
 
@@ -79,6 +81,7 @@ plugins:
       - include/
       max_configs: 42
       inconclusive: false
+      suppressions-list: .cppcheck-suppressions
 ```
 
 ## Need help?
