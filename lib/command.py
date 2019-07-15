@@ -38,6 +38,9 @@ class Command:
 
         if self.config.get('inconclusive', 'true') == 'true':
             command.append('--inconclusive')
+            
+        if self.config.get('suppressions-list'):
+            command.append('--suppressions-list={}'.format(self.config.get('suppressions-list')))
 
         command.extend(['--xml', '--xml-version=2'])
         command.append('--file-list={}'.format(self.file_list_path))
