@@ -7,7 +7,8 @@ class Command:
     def build(self):
         command = ['cppcheck']
 
-        command.append('--enable={}'.format(self.config.get('check', 'all')))
+        if self.config.get('check'):
+            command.append('--enable={}'.format(self.config.get('check')))
 
         if self.config.get('project'):
             command.append('--project={}'.format(self.config.get('project')))
