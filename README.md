@@ -23,8 +23,10 @@ Like the `cppcheck` command line tool itself, you can configure various
 aspects of the static analysis. Right now, the following options are supported
 in `.codeclimate.yml`:
 
-* `check`: issue categories to check. Available values are: `all`, `warning`,
-  `style`, `performance`, `portability`, `information`, `unusedFunction`, etc.
+* `check`: issue categories to check. 
+  By default, no additional checks are enabled.
+  Available values are: `all`, `warning`, `style`, `performance`, `portability`,
+  `information`, `unusedFunction`, etc.
   Refer to the `--enable=` option of `cppcheck` for more information.
 * `project`: use Visual Studio project/solution (`*.vcxproj`/`*sln`) or compile
   database (`compile_commands.json`) for files to analyse, include paths,
