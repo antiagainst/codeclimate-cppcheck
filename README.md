@@ -63,7 +63,7 @@ Additional options may be supported later.
 An example `.codeclimate.yml` file:
 
 ```yaml
-version: 2
+version: "2"
 plugins:
   cppcheck:
     enabled: true
