@@ -55,8 +55,11 @@ in `.codeclimate.yml`:
   information.
 * `inconclusive`: allow reporting issues that are not inconclusive.
   Refer to the `--inconclusive` option of `cppcheck` for more information.
-* `suppressions-list`: suppress warnings listed in the file..
+* `suppressions-list`: suppress warnings listed in the file.
   Refer to the `--suppressions-list` option of `cppcheck` for more information.
+* `inline-suppr`: allow suppression of warnings with inline comments, 
+  for example: `// cppcheck-suppress arrayIndexOutOfBounds`.
+  Refer to the `--inline-suppr` option of `cppcheck` for more information
 
 Additional options may be supported later.
 
@@ -84,6 +87,7 @@ plugins:
       max_configs: 42
       inconclusive: false
       suppressions-list: .cppcheck-suppressions
+      inline-suppr: true
 ```
 
 ## Need help?
