@@ -1,13 +1,12 @@
-FROM alpine:3.10
+FROM alpine:3.12
 LABEL maintainer "Lei Zhang <antiagainst@gmail.com>"
 
 WORKDIR /usr/src/app
-COPY docker/files /
 
 RUN apk --update add --no-cache --upgrade \
-      cppcheck@community \
+      cppcheck \
       python3 \
-      py3-lxml@main && \
+      py3-lxml && \
     rm -rf /usr/share/ri && \
     adduser -u 9000 -D -s /bin/false app
 
