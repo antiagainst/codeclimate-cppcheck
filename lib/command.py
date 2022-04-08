@@ -21,6 +21,9 @@ class Command:
 
         if self.config.get('platform'):
             command.append('--platform={}'.format(self.config.get('platform')))
+            
+        if self.config.get('library'):
+            command.append('--library={}'.format(self.config.get('library')))
 
         for symbol in self.config.get('defines', []):
             command.append('-D{}'.format(symbol))
