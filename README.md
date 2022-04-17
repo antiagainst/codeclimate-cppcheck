@@ -40,6 +40,8 @@ in `.codeclimate.yml`:
 * `platform`: specifies platform specific types and sizes. Available builtin
   platforms are: `unix32`, `unix64`, `win32A`, `win32W`, `win64`, etc.
   Refer to the `--platform=` option of `cppcheck` for more information.
+* `library`: specifies library `cfg` files to be loaded. Refer to the 
+  `--library=` option of `cppcheck` for more information.
 * `defines`: define preprocessor symbols.
   Refer to the `-D` option of `cppcheck` for more information.
 * `undefines`: undefine preprocessor symbols.
