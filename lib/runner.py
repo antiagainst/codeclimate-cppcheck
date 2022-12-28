@@ -78,7 +78,7 @@ class Runner:
 
 
     def _parse_results(self, results):
-        root = etree.fromstring(results)
+        root = etree.fromstring(results, parser=etree.XMLParser(huge_tree=True))
         issues = []
 
         for node in root:
