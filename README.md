@@ -93,6 +93,7 @@ plugins:
       max_configs: 42
       inconclusive: false
       dump: false
+      dump: false
       suppressions-list: .cppcheck-suppressions
       inline-suppr: true
       jobs: 4
