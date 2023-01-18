@@ -40,13 +40,13 @@ class Command:
             else:
                 command.append('--max-configs={}'.format(self.config.get('max_configs')))
 
-        if self.config.get('inconclusive', 'true') == 'true':
+        if self.config.get('inconclusive', 'true') == True:
             command.append('--inconclusive')
             
         if self.config.get('suppressions-list'):
             command.append('--suppressions-list={}'.format(self.config.get('suppressions-list')))
         
-        if self.config.get('inline-suppr', 'false') == 'true':
+        if self.config.get('inline-suppr', 'true') == True:
             command.append('--inline-suppr')
 
         command.extend(['--xml', '--xml-version=2'])
