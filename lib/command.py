@@ -49,6 +49,9 @@ class Command:
         if self.config.get('inline-suppr', 'true') == True:
             command.append('--inline-suppr')
 
+        if self.config.get('dump', 'true') == True:
+            command.append('--dump')
+
         command.extend(['--xml', '--xml-version=2'])
         command.append('--file-list={}'.format(self.file_list_path))
 
