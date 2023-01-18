@@ -25,6 +25,9 @@ class Command:
         if self.config.get('library'):
             command.append('--library={}'.format(self.config.get('library')))
 
+        if self.config.get('jobs'):
+            command.append('-j {}'.format(self.config.get('jobs')))
+
         for symbol in self.config.get('defines', []):
             command.append('-D{}'.format(symbol))
 
