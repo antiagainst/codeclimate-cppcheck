@@ -42,6 +42,8 @@ in `.codeclimate.yml`:
   Refer to the `--platform=` option of `cppcheck` for more information.
 * `library`: specifies library `cfg` files to be loaded. Refer to the 
   `--library=` option of `cppcheck` for more information.
+* `dump`: create dump files during execution.
+  Refer to the `--dump` option of `cppcheck` for more information.
 * `defines`: define preprocessor symbols.
   Refer to the `-D` option of `cppcheck` for more information.
 * `undefines`: undefine preprocessor symbols.
@@ -88,8 +90,10 @@ plugins:
       - include/
       max_configs: 42
       inconclusive: false
+      dump: false
       suppressions-list: .cppcheck-suppressions
       inline-suppr: true
+      library: googletest
 ```
 
 ## Need help?
